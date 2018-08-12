@@ -71,11 +71,24 @@ def fire_bullet(settings, screen, ship, bullets):
 def creat_aliens(settings, screen, aliens):
     alien = Alien(settings, screen)
     alien_width = alien.rect.width
+    number_aliens_x = get_number_aliens_x(settings, alien_width)
+    for alien_number in range(number_aliens_x + 1):
+        create_alien(settings, screen, aliens, alien_number)
+
+
+def get_number_aliens_x(settings, alien_width):
     available_space_x = settings.screen_width - 2 * alien_width
     number_aliens_x = int(available_space_x / (1.5 * alien_width))
+    return number_aliens_x
 
-    for alien_number in range(number_aliens_x + 1):
-        alien = Alien(settings, screen)
-        alien.x = alien_width + 1.5 * alien_width * alien_number
-        alien.rect.x = alien.x
-        aliens.add(alien)
+
+def create_alien(settings, screen, aliens, alien_number):
+    alien = Alien(settings, screen)
+    alien_width = alien.rect.width
+    alien.x = alien_width + 1.5 * alien_width * alien_number
+    alien.rect.x = alien.x
+    aliens.add(alien)
+
+
+def get_number_rows(settings, ship_height, alien_height):
+    available_space_y = settings.screen_height - (3 * alien_height) - ship_height
