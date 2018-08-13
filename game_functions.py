@@ -117,6 +117,8 @@ def update_aliens(settings, screen, stats, ship, aliens, bullets):
     aliens.update()
     if pygame.sprite.spritecollideany(ship, aliens):
         ship_hit(settings, screen, stats, ship, aliens, bullets)
+    else:
+        check_aliens_bottom(settings, screen, stats, ship, aliens, bullets)
 
 
 def check_aliens_edges(settings, aliens):
@@ -133,12 +135,20 @@ def change_aliens_direction(settings, aliens):
 
 
 def ship_hit(settings, screen, stats, ship, aliens, bullets):
-    stats.ships_left -= 1
+    if stats.ships_left > 0:
+        stats.ships_left -= 1
+        aliens.empty()
+        bullets.empty()
+        creat_aliens(settings, screen, ship, aliens)
+        ship.center_ship()
+        sleep(0.5)
+    else:
+        stats.game_active = False
 
-    aliens.empty()
-    bullets.empty()
 
-    creat_aliens(settings, screen, ship, aliens)
-    ship.center_ship()
-
-    sleep(0.5)
+def check_aliens_bottom(settings, screen, stats, ship, aliens, bullets):
+    screen_rect = screen.get_rect()
+    for alien in aliens.sprites():
+        if alien.rect.bottom >= screen_rect.bottom:
+            ship_hit(settings, screen, stats, ship, aliens, bullets)
+            break

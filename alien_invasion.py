@@ -34,9 +34,10 @@ def run_game():
     while True:
         # 监听鼠标键盘事件
         gf.check_event(settings, screen, ship, bullets)
-        ship.update()
-        gf.update_bullets(settings, screen, ship, aliens, bullets)
-        gf.update_aliens(settings, screen, stats, ship, aliens, bullets)
+        if stats.game_active:
+            ship.update()
+            gf.update_bullets(settings, screen, ship, aliens, bullets)
+            gf.update_aliens(settings, screen, stats, ship, aliens, bullets)
         gf.update_screen(settings, screen, ship, aliens, bullets)
 
 
