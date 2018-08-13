@@ -7,6 +7,7 @@ from settings import Settings
 from ship import Ship
 from alien import Alien
 from game_stats import GameStats
+from button import Button
 import game_functions as gf
 
 
@@ -30,15 +31,18 @@ def run_game():
 
     stats = GameStats(settings)
 
+    play_button = Button(settings, screen, "Play")
+
     # 开始游戏主循环
     while True:
         # 监听鼠标键盘事件
-        gf.check_event(settings, screen, ship, bullets)
+        gf.check_event(settings, screen, stats, ship, aliens, bullets, play_button)
         if stats.game_active:
             ship.update()
             gf.update_bullets(settings, screen, ship, aliens, bullets)
             gf.update_aliens(settings, screen, stats, ship, aliens, bullets)
-        gf.update_screen(settings, screen, ship, aliens, bullets)
+        gf.update_screen(settings, screen, stats, ship,
+                         aliens, bullets, play_button)
 
 
 run_game()
