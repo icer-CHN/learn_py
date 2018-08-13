@@ -6,6 +6,7 @@ from bullet import Bullet
 from alien import Alien
 from time import sleep
 from button import Button
+from scoreboard import Scoreboard
 
 
 def check_keydown_event(event, settings, screen, ship, bullets):
@@ -54,6 +55,8 @@ def check_play_button(settings, screen, stats, ship, aliens, bullets, play_butto
         button_clicked = True
 
     if button_clicked and not stats.game_active:
+        settings.initialize_dynamic_settings()
+
         pygame.mouse.set_visible(False)
 
         stats.reset_stats()
@@ -65,7 +68,7 @@ def check_play_button(settings, screen, stats, ship, aliens, bullets, play_butto
         ship.center_ship()
 
 
-def update_screen(settings, screen, stats, ship, aliens, bullets, play_button):
+def update_screen(settings, screen, stats, sb, ship, aliens, bullets, play_button):
     '''更新屏幕上的图像，并切换到新屏幕'''
     # 每次循环都重绘屏幕背景色
     screen.fill(settings.bg_color)
@@ -78,6 +81,8 @@ def update_screen(settings, screen, stats, ship, aliens, bullets, play_button):
     # 绘制外星人
     aliens.draw(screen)
 
+    sb.show_score()
+
     if not stats.game_active:
         play_button.draw_button()
 
@@ -85,21 +90,27 @@ def update_screen(settings, screen, stats, ship, aliens, bullets, play_button):
     pygame.display.flip()
 
 
-def update_bullets(settings, screen, ship, aliens, bullets):
+def update_bullets(settings, screen, stats, sb, ship, aliens, bullets):
     bullets.update()
 
     for bullet in bullets:
         if bullet.rect.bottom < 0:
             bullets.remove(bullet)
 
-    check_bullet_alien_collisions(settings, screen, ship, aliens, bullets)
+    check_bullet_alien_collisions(
+        settings, screen, stats, sb, ship, aliens, bullets)
 
 
-def check_bullet_alien_collisions(settings, screen, ship, aliens, bullets):
+def check_bullet_alien_collisions(settings, screen, stats, sb, ship, aliens, bullets):
     collisions = pygame.sprite.groupcollide(bullets, aliens, True, True)
-
+    if collisions:
+        for collisions_each_bullet in collisions.values():
+            stats.score += settings.alien_points * len(collisions_each_bullet)
+            sb.prep_score()
+        check_high_score(stats, sb)
     if len(aliens) == 0:
         bullets.empty()
+        settings.increase_speed()
         creat_aliens(settings, screen, ship, aliens)
 
 
@@ -183,3 +194,9 @@ def check_aliens_bottom(settings, screen, stats, ship, aliens, bullets):
         if alien.rect.bottom >= screen_rect.bottom:
             ship_hit(settings, screen, stats, ship, aliens, bullets)
             break
+
+
+def check_high_score(stats, sb):
+    if stats.score > stats.high_score:
+        stats.high_score = stats.score
+        sb.prep_high_score()
