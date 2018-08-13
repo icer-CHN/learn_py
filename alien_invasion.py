@@ -6,6 +6,7 @@ from pygame.sprite import Group
 from settings import Settings
 from ship import Ship
 from alien import Alien
+from game_stats import GameStats
 import game_functions as gf
 
 
@@ -27,13 +28,16 @@ def run_game():
     aliens = Group()
     gf.creat_aliens(settings, screen, ship, aliens)
 
+    stats = GameStats(settings)
+
     # 开始游戏主循环
     while True:
         # 监听鼠标键盘事件
         gf.check_event(settings, screen, ship, bullets)
         ship.update()
-        gf.update_bullets(bullets)
-        gf.update_aliens(settings, aliens)
+        gf.update_bullets(settings, screen, ship, aliens, bullets)
+        gf.update_aliens(settings, screen, stats, ship, aliens, bullets)
         gf.update_screen(settings, screen, ship, aliens, bullets)
+
 
 run_game()
