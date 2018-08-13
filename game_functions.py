@@ -68,12 +68,15 @@ def fire_bullet(settings, screen, ship, bullets):
         bullets.add(bullet)
 
 
-def creat_aliens(settings, screen, aliens):
+def creat_aliens(settings, screen, ship, aliens):
     alien = Alien(settings, screen)
     alien_width = alien.rect.width
     number_aliens_x = get_number_aliens_x(settings, alien_width)
-    for alien_number in range(number_aliens_x + 1):
-        create_alien(settings, screen, aliens, alien_number)
+    number_rows = get_number_rows(
+        settings, ship.rect.height, alien.rect.height)
+    for row_number in range(number_rows + 1):
+        for alien_number in range(number_aliens_x + 1):
+            create_alien(settings, screen, aliens, alien_number, row_number)
 
 
 def get_number_aliens_x(settings, alien_width):
@@ -82,13 +85,35 @@ def get_number_aliens_x(settings, alien_width):
     return number_aliens_x
 
 
-def create_alien(settings, screen, aliens, alien_number):
+def create_alien(settings, screen, aliens, alien_number, row_number):
     alien = Alien(settings, screen)
     alien_width = alien.rect.width
     alien.x = alien_width + 1.5 * alien_width * alien_number
     alien.rect.x = alien.x
+    alien.rect.y = alien.rect.height + 1.5 * alien.rect.height * row_number
     aliens.add(alien)
 
 
 def get_number_rows(settings, ship_height, alien_height):
-    available_space_y = settings.screen_height - (3 * alien_height) - ship_height
+    available_space_y = settings.screen_height - \
+        (5 * alien_height) - ship_height
+    number_rows = int(available_space_y / (1.5 * alien_height))
+    return number_rows
+
+
+def update_aliens(settings, aliens):
+    check_aliens_edges(settings, aliens)
+    aliens.update()
+
+
+def check_aliens_edges(settings, aliens):
+    for alien in aliens.sprites():
+        if alien.check_edges():
+            change_aliens_direction(settings, aliens)
+            break
+
+
+def change_aliens_direction(settings, aliens):
+    for alien in aliens.sprites():
+        alien.rect.y += settings.alien_drop_speed
+    settings.alien_direction *= -1
