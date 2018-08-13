@@ -142,14 +142,14 @@ def create_alien(settings, screen, aliens, alien_number, row_number):
     alien_width = alien.rect.width
     alien.x = alien_width + 1.5 * alien_width * alien_number
     alien.rect.x = alien.x
-    alien.rect.y = alien.rect.height + 1.5 * alien.rect.height * row_number
+    alien.rect.y = 2 * alien.rect.height + 2 * alien.rect.height * row_number
     aliens.add(alien)
 
 
 def get_number_rows(settings, ship_height, alien_height):
     available_space_y = settings.screen_height - \
         (5 * alien_height) - ship_height
-    number_rows = int(available_space_y / (1.5 * alien_height))
+    number_rows = int(available_space_y / (2 * alien_height))
     return number_rows
 
 
