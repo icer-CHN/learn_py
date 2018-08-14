@@ -1,15 +1,15 @@
 import sys
 
 import pygame
-
 from pygame.sprite import Group
+
+import game_functions as gf
+from alien import Alien
+from button import Button
+from game_stats import GameStats
+from scoreboard import Scoreboard
 from settings import Settings
 from ship import Ship
-from alien import Alien
-from game_stats import GameStats
-from button import Button
-from scoreboard import Scoreboard
-import game_functions as gf
 
 
 def run_game():
@@ -39,13 +39,14 @@ def run_game():
     # 开始游戏主循环
     while True:
         # 监听鼠标键盘事件
-        gf.check_event(settings, screen, stats, ship,
+        gf.check_event(settings, screen, stats, sb, ship,
                        aliens, bullets, play_button)
         if stats.game_active:
             ship.update()
             gf.update_bullets(settings, screen, stats,
                               sb, ship, aliens, bullets)
-            gf.update_aliens(settings, screen, stats, ship, aliens, bullets)
+            gf.update_aliens(settings, screen, stats,
+                             sb, ship, aliens, bullets)
         gf.update_screen(settings, screen, stats, sb, ship,
                          aliens, bullets, play_button)
 

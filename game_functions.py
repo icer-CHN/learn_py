@@ -1,10 +1,10 @@
 import sys
+from time import sleep
 
 import pygame
 
-from bullet import Bullet
 from alien import Alien
-from time import sleep
+from bullet import Bullet
 from button import Button
 from scoreboard import Scoreboard
 
@@ -27,7 +27,7 @@ def check_keyup_event(event, ship):
         ship.moving_left = False
 
 
-def check_event(settings, screen, stats, ship, aliens, bullets, play_button):
+def check_event(settings, screen, stats, sb, ship, aliens, bullets, play_button):
     '''监听鼠标键盘事件'''
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -37,7 +37,7 @@ def check_event(settings, screen, stats, ship, aliens, bullets, play_button):
             if event.key != pygame.K_p:
                 check_keydown_event(event, settings, screen, ship, bullets)
             else:
-                check_play_button(settings, screen, stats, ship,
+                check_play_button(settings, screen, stats, sb, ship,
                                   aliens, bullets, play_button, 0, 0, True)
 
         elif event.type == pygame.KEYUP:
@@ -45,11 +45,11 @@ def check_event(settings, screen, stats, ship, aliens, bullets, play_button):
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
             mouse_x, mouse_y = pygame.mouse.get_pos()
-            check_play_button(settings, screen, stats, ship,
+            check_play_button(settings, screen, stats, sb, ship,
                               aliens, bullets, play_button, mouse_x, mouse_y, False)
 
 
-def check_play_button(settings, screen, stats, ship, aliens, bullets, play_button, mouse_x, mouse_y, enter):
+def check_play_button(settings, screen, stats, sb, ship, aliens, bullets, play_button, mouse_x, mouse_y, enter):
     button_clicked = play_button.rect.collidepoint(mouse_x, mouse_y)
     if enter:
         button_clicked = True
@@ -61,6 +61,12 @@ def check_play_button(settings, screen, stats, ship, aliens, bullets, play_butto
 
         stats.reset_stats()
         stats.game_active = True
+
+        sb.prep_score()
+        sb.prep_high_score()
+        sb.prep_level()
+        sb.prep_ships()
+
         aliens.empty()
         bullets.empty()
 
@@ -111,6 +117,8 @@ def check_bullet_alien_collisions(settings, screen, stats, sb, ship, aliens, bul
     if len(aliens) == 0:
         bullets.empty()
         settings.increase_speed()
+        stats.level += 1
+        sb.prep_level()
         creat_aliens(settings, screen, ship, aliens)
 
 
@@ -153,13 +161,13 @@ def get_number_rows(settings, ship_height, alien_height):
     return number_rows
 
 
-def update_aliens(settings, screen, stats, ship, aliens, bullets):
+def update_aliens(settings, screen, stats, sb, ship, aliens, bullets):
     check_aliens_edges(settings, aliens)
     aliens.update()
     if pygame.sprite.spritecollideany(ship, aliens):
-        ship_hit(settings, screen, stats, ship, aliens, bullets)
+        ship_hit(settings, screen, stats, sb, ship, aliens, bullets)
     else:
-        check_aliens_bottom(settings, screen, stats, ship, aliens, bullets)
+        check_aliens_bottom(settings, screen, stats, sb, ship, aliens, bullets)
 
 
 def check_aliens_edges(settings, aliens):
@@ -175,9 +183,10 @@ def change_aliens_direction(settings, aliens):
     settings.alien_direction *= -1
 
 
-def ship_hit(settings, screen, stats, ship, aliens, bullets):
+def ship_hit(settings, screen, stats, sb, ship, aliens, bullets):
     if stats.ships_left > 0:
         stats.ships_left -= 1
+        sb.prep_ships()
         aliens.empty()
         bullets.empty()
         creat_aliens(settings, screen, ship, aliens)
@@ -188,11 +197,11 @@ def ship_hit(settings, screen, stats, ship, aliens, bullets):
         pygame.mouse.set_visible(True)
 
 
-def check_aliens_bottom(settings, screen, stats, ship, aliens, bullets):
+def check_aliens_bottom(settings, screen, stats, sb, ship, aliens, bullets):
     screen_rect = screen.get_rect()
     for alien in aliens.sprites():
         if alien.rect.bottom >= screen_rect.bottom:
-            ship_hit(settings, screen, stats, ship, aliens, bullets)
+            ship_hit(settings, screen, stats, sb, ship, aliens, bullets)
             break
 
 
