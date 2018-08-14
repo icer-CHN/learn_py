@@ -1,3 +1,4 @@
+import json
 import sys
 from time import sleep
 
@@ -9,9 +10,17 @@ from button import Button
 from scoreboard import Scoreboard
 
 
-def check_keydown_event(event, settings, screen, ship, bullets):
+def close_game(stats):
+    high_score = stats.high_score
+    filename = 'high_score.json'
+    with open(filename, 'w') as f:
+        json.dump(high_score, f)
+    sys.exit()
+
+
+def check_keydown_event(event, settings, stats, screen, ship, bullets):
     if event.key == pygame.K_ESCAPE:
-        sys.exit()
+        close_game(stats)
     elif event.key == pygame.K_RIGHT:
         ship.moving_right = True
     elif event.key == pygame.K_LEFT:
@@ -31,11 +40,12 @@ def check_event(settings, screen, stats, sb, ship, aliens, bullets, play_button)
     '''监听鼠标键盘事件'''
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            sys.exit()
+            close_game(stats)
 
         elif event.type == pygame.KEYDOWN:
             if event.key != pygame.K_p:
-                check_keydown_event(event, settings, screen, ship, bullets)
+                check_keydown_event(event, settings, stats,
+                                    screen, ship, bullets)
             else:
                 check_play_button(settings, screen, stats, sb, ship,
                                   aliens, bullets, play_button, 0, 0, True)
